@@ -1,0 +1,190 @@
+Project done by Sowmith Nandan (IMT2018074) and Kanumuru Shree Jhanwwee(IMT2018035)
+
+Language-used: C and C++,there are two codes written, the code written in C(IMT2018074.c) is by Sowmith Nandan and the code in C++(IMT2018035.cpp) is by Kanumuru Shree Jhanwwee,the codes were written after discussing the question and logic thoroughly. 
+
+sources referred to complete this assignment:
+1) Mathematical Induction :https://www.geeksforgeeks.org/mathematics-introduction-to-proofs/
+
+
+
+Data-structures used: arrays 
+
+How to run the code 
+
+C code: Go to terminal and after going to the directory where the code is stored type gcc IMT2018074.c and then after the code compiles successfully type ./a.out.
+
+
+C++ code:Go to terminal and after going to the directory where the code is stored type g++ IMT2018035.cpp and then after the code compiles successfully type ./a.out.
+
+
+
+
+BRACKET ALGORITHM
+
+PROBLEM STATEMENT:
+Given n(number of brackets),
+k(for denoting brackets with the opening 1,2,3,...k and closing pair k+1,k+2,...2*k),
+B[0...n-1](bracket array),
+V[0...n-1](value array)
+To find the maximum sum of values of the bracket subsequence which is valid
+For a bracket subsequence to be valid:
+1)Closing bracket cannot come before opening bracket
+2)Any one of opening bracket or closing bracket cannot occur alone in the susequence
+3)One set of brackets should be either completely inside one set of  brackets or completely outside but cannot overlap.
+
+ALGORITHM AND PROOF:
+We can solve this problem using dynamic programming approach.
+let maxsumsub(B[i...j],V[i...j])-returns the maximum sum of valid bracket subsequence in the array from index i to index j
+
+BASE CASE-
+i==j
+returns zero
+As one bracket is not a valid bracket subsequence
+
+Now to find maxsumsub(B[0...n],V[i...n]):-
+We find B([i,...,j],V[i,......,j]) ( here putting i=0 and j=n gives us the required answer) by   iterating l(a variable) from i to j and find maxsumsub(B[i,..,l],V[i,...,l]) in every iteration, the last iteration where l=n gives us the required answer.
+
+At any arbitrarily chosen l, we can say that
+the maximum sum of valid subsequence can have two cases-
+->the subsequence excludes B[l] in the subseqence formed by considering brackets from i t0 l 
+->the subsequence includes B[l] in the subseqence formed by considering brackets from i t0 l 
+
+FIRST CASE-
+
+When B[l] is not included then, 
+maxsumsub(B[i...l],V[i...l])=maxsumsub(B[i...l-1],V[i...l-1])
+
+SECOND CASE-
+
+When B[l] is include, there will be 2 cases:-
+
+Case 1:
+	B[l] is an OPENING bracket 
+	If B[l] is included in the considered  subsequence, then it does not have a  closing bracket  in the subsequence 
+	and hence becomes an invalid bracket subsequence.Note that it may have a corresponding closing bracket in bracket set[i,j] but as far as our subsequence is considered it becomes an invalid bracket 		as we considered  brackets from  i to l. 
+	Hence, if B[l] is an opening bracket it cant be part of the maximum sum bracket subsequence from i to l
+	maxsumsub(B[i...l],V[i...l])=maxsumsub(B[i...l-1],V[i...l-1])
+
+Case 2:
+	B[l] is a CLOSING bracket and the corresponding opening brackets are at the indices a1,a2,a3...am,
+	then we can include any of the these pairs as a bracket set in the subsequence.
+	Assuming if ao(without loss of generality) is to be taken as the opening bracket for B[l] then
+	maxsumsub(B[i...l],V[i...l])=maxsumsub(B[i...ao-1],V[i...ao-1])+V[ao]+V[l]+maxsumsub(B[ao+1,...,l-1],V[ao+1,...,l-1])
+	so, we get the maximum by taking the maximum of 
+	1) excluding B[l] from the subsequence (maxsumsub(B[i...l-1],V[i...l-1]))
+	2)including B[l] that is finding the maximum of all subsequences formed by pairing B[l] with all the possible opening pairs.
+	So the final maximum would be ,
+	maxsumsub(B[i...l],V[i...l])=maximum(maxsumsub(B[i...l-1],V[i...l-1]),
+					     maxsumsub(B[i...a1-1],V[i...a1-1])+V[a1]+V[l]+maxsumsub(B[a1+1...l-1],V[a1+1...l-1]),
+		                             maxsumsub(B[i...a2-1],V[i...a2-1])+V[a2]+V[l]+maxsumsub(B[a2+1...l-1],V[a2+1...l-1]),
+		                             ...
+		                             ...
+		                             ...
+		                             maxsumsub(B[i...am-1],V[i...am-1])+V[am]+V[l]+maxsumsub(B[al+1,...,l-1],V[al+1,...,l-1]))
+					
+
+
+PSUEDO CODE:
+B->value given to the bracket
+V-> value of the bracket
+initially all the elements in the array MSS are initialize to zero 
+maxsumsub(B[i...j],V[i...j]){
+    if(i==j){
+        return 0;
+    }
+    if(MSS[i][j]){			//MSS is an array which stores the maximum sum of subsequence from i to j as MSS[i][j](Memoization)
+        return MSS[i][j];
+    }
+    for(int a=i;a<=j;a++){
+        //Case 1: B[a] is an opening bracket
+        if(V[a]<=k){
+            //we cannot include an opening bracket as it would be invalid bracket subsequence
+            MSS[i][a]=MSS[i][a-1];
+        }
+        //Case 2: B[a] is a closing bracket
+        else{
+            //maximum of two cases -including the bracket B[a] and -excluding the bracket B[a]
+            a1,a2,a3....al are the indices of the opening bracket of B[a] which are to the left of B[a]
+            MSS[i][a]=maximum(MSS[i][a-1], maxsumsub(B[i...a1-1],V[i...a1-1])+V[a1]+V[a]+maxsumsub(B[a1+1...a-1],V[a1+1...a-1]),
+		                             maxsumsub(B[i...a2-1],V[i...a2-1])+V[a2]+V[a]+maxsumsub(B[a2+1...a-1],V[a2+1...a-1]),
+		                             ...
+		                             ...
+		                             ...
+		                             maxsumsub(B[i...al-1],V[i...al-1])+V[al]+V[a]+maxsumsub(B[al+1...a-1],V[al+1...a-1]))
+        }
+    }
+    return MSS[i][j];
+}
+
+for(i=0;i<=n;i++)
+	{
+	maxsumsub(B[0,i],V[0,i]);
+	}
+print(maxsumsub(B[0,n],V[0,n]));
+
+PROOF:
+
+The base of our algorithm is that we are considering all the possibilities of 
+valid bracket subsequence and taking the maximum of all.
+In the dynamic programming approach we chose,
+the two possibilities considered are
+excluding B[j]
+including B[j]
+->B[j] is an opening bracket
+->B[j] is a closing bracket
+which are exhaustive cases
+And we are returning the maximum value of all the possibilities.
+
+We can prove the algorithm by STRONG INDUCTION on n
+
+BASE CASE
+n=1 that is (i==j)
+one bracket cannot form a valid bracket subsequence so, it is zero.
+the proposed algorithm returns zero as the answer.
+The algorithm is proven for the base case.
+
+INDUCTIVE HYPOTHESIS
+Assuming, the algorithm gives correct answer for n<=K and also the induction variable is the length of the string that is considered .
+
+TO PROVE that the algorithm gives correct answer for K+1
+So, we know maxsumsub(B[0...K],V[0...K]) is accurate.
+
+For maxsumsub(B[0...K+1],V[0...K+1])
+We have only two possibilities:-
+if bracket is an opening bracket
+    maxsumsub(B[0...K+1],V[0...K+1])=maxsumsub(B[0...K],V[0...K]) (which is already known as we considered the algorithm to be true for maxsumsub(B[0,l]V[0,l] ) where l<=n)
+
+else if it is a closing bracket
+    there are two cases 
+    case 1)
+    A subsequence which includes the new bracket .If it includes the bracket ,it forms a pair with any of the brackets at a1,a2,....am, so the new subsequence formed would be maximum of these  m 	possibilities.Any such possibility includes inclusion of  am and k+1  bracket pair, the maximum sum subsequence before am which is already known due to the inductive step  and the subsequence between am,k+1 (whose length is less than K  ).
+ 
+    case 2)
+    It excludes the new bracket eventhough it is closing bracket (with or without  opening brackets which can pair up with it ) as excuding it will result in maximum sum ( maxsumsub(B[0...K+1],V[0...K+1])=maxsumsub(B[0...K],V[0...K]).
+
+    The most important point is we have exhaustively created a set of all possible new subsequences that can be formed with the addition of this (k+1)th bracket to the subsequence.And the maximum sum of 	subsequence is the maximum of this set and maxsumsub(B[1,K],V[1,K]) .
+
+    Hence the maximum sum for the subsequence for B[1,k+1] would be   
+    maximum(excluding B[K+1] in the subsequence, including B[K+1] in the subsequence)
+    that is maximum(maxsumsub(B[0...K],V[0...K]), maximum(maxsumsub(B[i...a1-1],V[i...a1-1])+V[a1]+V[K+1]+maxsumsub(B[a1+1...K],V[a1+1...K]),
+		                                                      maxsumsub(B[i...a2-1],V[i...a2-1])+V[a2]+V[K+1]+maxsumsub(B[a2+1...K],V[a2+1...K]),
+		                                                      ...
+		                                                      ...
+		                                                      ...
+		                                                      maxsumsub(B[i...al-1],V[i...al-1])+V[al]+V[K]+maxsumsub(B[al+1...K],V[al+1...K]))
+            where a1,a2...al are indices of the opening brackets of B[K]
+            a1,a2...al<K
+            so all the maxsumsub calculated to find for n=K+1 are accurate as their n<K+1
+             As we are taking the maximum of all the possibilities(exhaustive cases)  the algorithm  is proved for B[1,K+1].
+
+
+
+
+
+
+Contribution :
+Sowmith Nandan (IMT2018074):Logic and Algorithm
+code written in C language
+
+Kanumuru Shree Jhanwwee(IMT2018035): Proof of correctness
+code written in C++ language
